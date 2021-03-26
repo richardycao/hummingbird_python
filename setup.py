@@ -1,7 +1,11 @@
-from setuptools import setup, find_packages
+from setuptools import setup
 
 setup(name='hummingbird',
     version='0.0.1',
-    author='richardycao',
-    url='https://github.com/richardycao/hummingbird_python.git'
+    author='Richard Cao',
+    author_email='richardycao@gmail.com',
+    license='MIT',
+    url='https://github.com/richardycao/hummingbird_python.git',
+    packages=['hummingbird'],
+    install_requires=['confluent-kafka==1.6.0']
 )
