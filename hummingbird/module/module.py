@@ -105,7 +105,7 @@ class Module(object):
     except getopt.error as err:
       print(str(err))
 
-    if 'i' in self.args['type']:
+    if self.args['has_input']:
       print('Creating consumer')
       conf_in = {
         'bootstrap.servers' : self.args['servers_in'][0],
@@ -116,7 +116,7 @@ class Module(object):
       self.consumer = Consumer(conf_in)
       self.consumer.subscribe(self.args['topics_in'])
 
-    if 'o' in self.args['type']:
+    if self.args['has_output']:
       print('Creating producer')
       conf_out = { 'bootstrap.servers': self.args['servers_out'][0] }
       self.producer = Producer(**conf_out)
