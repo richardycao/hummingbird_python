@@ -1,3 +1,3 @@
 # hummingbird_python
 
-pip install git+https://github.com/richardycao/hummingbird_python.git#egg=hummingbird
+pip install --upgrade git+https://github.com/richardycao/hummingbird_python.git#egg=hummingbird
