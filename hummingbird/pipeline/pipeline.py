@@ -1,13 +1,14 @@
 import os
 from pathlib import Path
+from pipeline import PipelineNode
 
 class Pipeline(object):
   def __init__(self, modules=[]):
     """
-    modules: list of <path to main python file>
+    modules: list of PipelineNode
     """
 
-    self.modules = [Path(c) for c in modules]
+    self.modules = modules
     self.tab_size = 2
 
   def __tabs(self, count):
@@ -30,7 +31,8 @@ class Pipeline(object):
       
     """
 
-    for c_path in self.modules:
+    for module in self.modules:
+      c_path = module.module_path
       with open(c_path + "/Dockerfile", 'w') as f:
         f.write("FROM ubuntu:latest\n")
         f.write("\n")
@@ -44,7 +46,13 @@ class Pipeline(object):
         f.write("RUN pip3 install git+https://github.com/richardycao/hummingbird_python.git#egg=hummingbird\n")
         f.write("\n")
         f.write("COPY *.py .\n")
-        f.write("CMD python3 " + c_path.name)
+        f.write("CMD python3 " + Path(c_path).name)
+
+        # Writing params to the python command
+        params = module.params
+        for key, value in params.items():
+          f.write(" --" + key + " " + value)
+        f.write("\n")
 
     """
     Create the docker-compose file for the pipeline
@@ -55,12 +63,12 @@ class Pipeline(object):
       f.write("\n")
       f.write("services:\n")
 
-      i = len(self.modules) - 1
       dependencies = []
-      for c_path in reversed(self.modules):
-        label = c_path.parent.name
+      for module in reversed(self.modules):
+        c_path = module.module_path
+        label = Path(c_path).parent.name
         f.write(self.__tabs(1) + label + ":\n")
-        f.write(self.__tabs(2) + "build: " + c_path + "\n")
+        f.write(self.__tabs(2) + "build: " + Path(c_path).parent + "\n")
         f.write(self.__tabs(2) + "container_name: " + label + "\n")
         f.write(self.__tabs(2) + "depends_on:\n")
 
