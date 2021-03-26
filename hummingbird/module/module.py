@@ -71,8 +71,8 @@ class Module(object):
     long_options = ["topics-in=", "topics-out=", "servers-in=", 
                     "servers-out=", "group-id=", "session-timeout-ms=", 
                     "auto-offset-reset="] + list(map(
-                      lambda x: (self.custom_options[x] + '=') if self.custom_options[x] != None else self.custom_options[x],
-                      self.custom_options
+                      lambda x: (x + '=') if self.custom_options[x] != None else x,
+                      self.custom_options.keys()
                     ))
 
     try:
