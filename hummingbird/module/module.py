@@ -40,10 +40,8 @@ When a pipeline is generated, it should check if the I/O params are valid matche
 """
 class Module(object):
   def __init__(self, args):
-    self.options_custom = []
     # Default base args
     self.args = {
-      'type'              : '', # Should be defined in the derived class
       'topics_in'         : '',
       'topics_out'        : '',
       'servers_in'        : '',
@@ -52,31 +50,10 @@ class Module(object):
       'session.timeout.ms': 10000,
       'auto.offset.reset' : 'earliest'
     }
-    self.extract_args(args)
     
-    if 'i' in self.args['type']:
-      print('Creating consumer')
-      conf_in = {
-        'bootstrap.servers' : self.args['servers_in'][0],
-        'group.id'          : self.args['group.id'],
-        'session.timeout.ms': self.args['session.timeout.ms'],
-        'auto.offset.reset' : self.args['auto.offset.reset']
-      }
-      self.consumer = Consumer(conf_in)
-      self.consumer.subscribe(self.args['topics_in'])
-
-    if 'o' in self.args['type']:
-      print('Creating producer')
-      conf_out = { 'bootstrap.servers': self.args['servers_out'][0] }
-      self.producer = Producer(**conf_out)
-
-  def __option2arg(self, option_str):
-    return "--" + option_str.replace('=', '')
-  
-  def extract_args(self, args):
     short_options = ""
     long_options = ["topics-in=", "topics-out=", "servers-in=", "servers-out=",
-                    "group-id=", "session-timeout-ms=", "auto-offset-reset="] + self.options_custom
+                    "group-id=", "session-timeout-ms=", "auto-offset-reset="]
 
     try:
       arguments, _ = getopt.getopt(args, short_options, long_options)
@@ -96,11 +73,26 @@ class Module(object):
           self.args['session.timeout.ms'] = int(currentValue)
         elif currentArgument in ("--auto-offset-reset"):
           self.args['auto.offset.reset'] = currentValue
-        elif currentArgument in map(self.__option2arg, self.options_custom):
-          self.args[self.__option2arg(currentArgument)] = currentValue
                 
     except getopt.error as err:
       print(str(err))
+
+  def buildIO(self):
+    if 'i' in self.args['type']:
+      print('Creating consumer')
+      conf_in = {
+        'bootstrap.servers' : self.args['servers_in'][0],
+        'group.id'          : self.args['group.id'],
+        'session.timeout.ms': self.args['session.timeout.ms'],
+        'auto.offset.reset' : self.args['auto.offset.reset']
+      }
+      self.consumer = Consumer(conf_in)
+      self.consumer.subscribe(self.args['topics_in'])
+
+    if 'o' in self.args['type']:
+      print('Creating producer')
+      conf_out = { 'bootstrap.servers': self.args['servers_out'][0] }
+      self.producer = Producer(**conf_out)
   
   def delivery_callback(self, err, msg):
     if err:
