@@ -1,6 +1,5 @@
 import os
 from pathlib import Path
-from pipeline import PipelineNode
 
 class Pipeline(object):
   def __init__(self, modules=[]):
@@ -32,8 +31,8 @@ class Pipeline(object):
     """
 
     for module in self.modules:
-      c_path = module.module_path
-      with open(c_path + "/Dockerfile", 'w') as f:
+      path = Path(module.module_path)
+      with open(str(path.parent) + "/Dockerfile", 'w') as f:
         f.write("FROM ubuntu:latest\n")
         f.write("\n")
         f.write("RUN apt-get update\n")
@@ -46,7 +45,7 @@ class Pipeline(object):
         f.write("RUN pip3 install git+https://github.com/richardycao/hummingbird_python.git#egg=hummingbird\n")
         f.write("\n")
         f.write("COPY *.py .\n")
-        f.write("CMD python3 " + Path(c_path).name)
+        f.write("CMD python3 " + path.name)
 
         # Writing params to the python command
         params = module.params
@@ -65,12 +64,13 @@ class Pipeline(object):
 
       dependencies = []
       for module in reversed(self.modules):
-        c_path = module.module_path
-        label = Path(c_path).parent.name
+        path = Path(module.module_path)
+        label = path.parent.name
         f.write(self.__tabs(1) + label + ":\n")
-        f.write(self.__tabs(2) + "build: " + Path(c_path).parent + "\n")
+        f.write(self.__tabs(2) + "build: " + str(path.parent) + "\n")
         f.write(self.__tabs(2) + "container_name: " + label + "\n")
-        f.write(self.__tabs(2) + "depends_on:\n")
+        if len(dependencies) > 0:
+          f.write(self.__tabs(2) + "depends_on:\n")
 
         # Very temporary way to set dependencies
         for dep in dependencies:
