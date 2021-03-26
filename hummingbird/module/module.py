@@ -39,7 +39,8 @@ When a pipeline is synthesized, it should check if the I/O params are valid matc
 
 """
 class Module(object):
-  def __init__(self):
+  def __init__(self, args):
+    self.input_args = args
     # Default base args
     self.args = {
       # These are defined in the module implementation
@@ -66,7 +67,7 @@ class Module(object):
   def add_argument(self, option, parser=None):
     self.custom_options[option] = parser
 
-  def build(self, args):
+  def build(self):
     short_options = ""
     long_options = ["topics-in=", "topics-out=", "servers-in=", 
                     "servers-out=", "group-id=", "session-timeout-ms=", 
@@ -76,7 +77,7 @@ class Module(object):
                     ))
 
     try:
-      arguments, _ = getopt.getopt(args, short_options, long_options)
+      arguments, _ = getopt.getopt(self.input_args, short_options, long_options)
       
       for currentArgument, currentValue in arguments:
         if currentArgument in ("--topics-in"):
