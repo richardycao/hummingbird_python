@@ -1,1 +1,1 @@
-# hummingbird-python
+# hummingbird_python
