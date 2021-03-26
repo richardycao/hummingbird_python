@@ -1,0 +1,1 @@
+from hummingbird.module import Module
