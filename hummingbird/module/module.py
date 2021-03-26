@@ -83,10 +83,10 @@ class Module(object):
           self.args['topics_in'] = currentValue.split(',')
         elif currentArgument in ("--topics-out"):
           self.args['topics_out'] = currentValue.split(',')
-        elif currentArgument in ("--servers-in"):
-          self.args['servers_in'] = currentValue.split(',')
-        elif currentArgument in ("--servers-out"):
-          self.args['servers_out'] = currentValue.split(',')
+        elif currentArgument in ("--servers-in"): # comma-separated
+          self.args['servers_in'] = currentValue
+        elif currentArgument in ("--servers-out"): # comma-separated
+          self.args['servers_out'] = currentValue
         elif currentArgument in ("--group-id"):
           self.args['group_id'] = currentValue
         elif currentArgument in ("--session-timeout-ms"):
@@ -108,17 +108,17 @@ class Module(object):
     if self.args['has_input']:
       print('Creating consumer')
       conf_in = {
-        'bootstrap.servers' : self.args['servers_in'][0],
+        'bootstrap.servers' : self.args['servers_in'],
         'group.id'          : self.args['group_id'],
         'session.timeout.ms': self.args['session_timeout_ms'],
         'auto.offset.reset' : self.args['auto_offset_reset']
       }
       self.consumer = Consumer(conf_in)
-      self.consumer.subscribe(self.args['topics_in'])
+      self.consumer.subscribe(self.args['topics_in'][0])
 
     if self.args['has_output']:
       print('Creating producer')
-      conf_out = { 'bootstrap.servers': self.args['servers_out'][0] }
+      conf_out = { 'bootstrap.servers': self.args['servers_out'] }
       self.producer = Producer(**conf_out)
   
   def delivery_callback(self, err, msg):
