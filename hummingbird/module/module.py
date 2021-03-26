@@ -70,10 +70,10 @@ class Module(object):
     short_options = ""
     long_options = ["topics-in=", "topics-out=", "servers-in=", 
                     "servers-out=", "group-id=", "session-timeout-ms=", 
-                    "auto-offset-reset="] + map(
+                    "auto-offset-reset="] + list(map(
                       lambda x: (self.custom_options[x] + '=') if self.custom_options[x] != None else self.custom_options[x],
                       self.custom_options
-                    )
+                    ))
 
     try:
       arguments, _ = getopt.getopt(args, short_options, long_options)
