@@ -7,5 +7,5 @@ setup(name='hummingbird',
     license='MIT',
     url='https://github.com/richardycao/hummingbird_python.git',
     packages=find_packages(),
-    install_requires=['confluent-kafka']
+    install_requires=['confluent-kafka', 'pathlib2']
 )

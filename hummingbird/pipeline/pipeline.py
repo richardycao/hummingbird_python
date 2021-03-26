@@ -1,22 +1,20 @@
 import os
+from pathlib import Path
 
 class Pipeline(object):
-  def __init__(self, containers=[]):
+  def __init__(self, modules=[]):
     """
-    modules : list of Module
-
-    For now, the pipeline will just be a sequence of modules - no parallel modules.
-    The pipeline will be created in the order that the modules come in.
+    modules: list of <path to main python file>
     """
 
-    self.containers = containers
+    self.modules = [Path(c) for c in modules]
     self.tab_size = 2
 
   def __tabs(self, count):
     tab = ''.join([' ' for _ in range(self.tab_size)])
     return ''.join([tab for _ in range(count)])
 
-  def synthesize(self):
+  def build(self):
     """
     Create the docker files.
       - This is called from anywhere, as long as the path to each of the containers
@@ -24,10 +22,15 @@ class Pipeline(object):
       - The 'run' command in each Dockerfile should set its arguments based on arguments passed
         into this Pipeline object.
 
+    What info is needed about the paths?
+    - the relative path from the root directory is need for docker-compose.yml
+    - the main python file to run
+    - the name of the container - should be the directory name, which is included
+      in the path
       
     """
 
-    for c_path in self.containers:
+    for c_path in self.modules:
       with open(c_path + "/Dockerfile", 'w') as f:
         f.write("FROM ubuntu:latest\n")
         f.write("\n")
@@ -38,34 +41,35 @@ class Pipeline(object):
         f.write("WORKDIR /usr/src/app\n")
         f.write("COPY requirements.txt .\n")
         f.write("RUN pip3 install -r requirements.txt\n")
+        f.write("RUN pip3 install git+https://github.com/richardycao/hummingbird_python.git#egg=hummingbird\n")
         f.write("\n")
         f.write("COPY *.py .\n")
-        f.write("CMD python3 ") # doesn't work atm
+        f.write("CMD python3 " + c_path.name)
 
     """
     Create the docker-compose file for the pipeline
     """
 
-    with open('docker-compose-test.yml', 'w') as f:
+    with open('./docker-compose-test.yml', 'w') as f:
       f.write("version: '3.7'\n")
       f.write("\n")
       f.write("services:\n")
 
-      i = len(self.containers) - 1
-      for dir in reversed(self.containers):
-        label = "stage" + str(i)
+      i = len(self.modules) - 1
+      dependencies = []
+      for c_path in reversed(self.modules):
+        label = c_path.parent.name
         f.write(self.__tabs(1) + label + ":\n")
-        f.write(self.__tabs(2) + "build: " + dir + "\n")
+        f.write(self.__tabs(2) + "build: " + c_path + "\n")
         f.write(self.__tabs(2) + "container_name: " + label + "\n")
         f.write(self.__tabs(2) + "depends_on:\n")
 
         # Very temporary way to set dependencies
-        for j in range(i + 1, len(self.containers)):
-          f.write(self.__tabs(3) + "- " + "stage" + str(j) + "\n")
+        for dep in dependencies:
+          f.write(self.__tabs(3) + "- " + dep + "\n")
 
-        i -= 1
+        dependencies.append(label)
 
-  def build(self):
     """
     Build the docker-compose files
     """
