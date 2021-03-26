@@ -19,8 +19,30 @@ class Pipeline(object):
   def synthesize(self):
     """
     Create the docker files.
+      - This is called from anywhere, as long as the path to each of the containers
+        is provided.
       - The 'run' command in each Dockerfile should set its arguments based on arguments passed
         into this Pipeline object.
+
+      
+    """
+
+    for c_path in self.containers:
+      with open(c_path + "/Dockerfile", 'w') as f:
+        f.write("FROM ubuntu:latest\n")
+        f.write("\n")
+        f.write("RUN apt-get update\n")
+        f.write("RUN apt-get install -y python3.7 python3-pip python3-dev git\n")
+        f.write("RUN pip3 install --upgrade pip\n")
+        f.write("\n")
+        f.write("WORKDIR /usr/src/app\n")
+        f.write("COPY requirements.txt .\n")
+        f.write("RUN pip3 install -r requirements.txt\n")
+        f.write("\n")
+        f.write("COPY *.py .\n")
+        f.write("CMD python3 ") # doesn't work atm
+
+    """
     Create the docker-compose file for the pipeline
     """
 
