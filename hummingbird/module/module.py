@@ -116,7 +116,7 @@ class Module(object):
         'auto.offset.reset' : self.args['auto_offset_reset']
       }
       self.consumer = Consumer(conf_in)
-      self.consumer.subscribe(self.args['topics_in'][0])
+      self.consumer.subscribe(self.args['topics_in'])
 
     if self.args['has_output']:
       print('Creating producer')
