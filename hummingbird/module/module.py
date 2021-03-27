@@ -133,7 +133,7 @@ class Module(object):
       msg = self.consumer.poll(timeout=timeout)
 
       if msg is None:
-        pass
+        return None
       if msg.error():
         raise KafkaException(msg.error())
       else:
