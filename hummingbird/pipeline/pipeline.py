@@ -43,6 +43,9 @@ class Pipeline(object):
         f.write("WORKDIR /usr/src/app\n")
         f.write("COPY requirements.txt .\n")
         f.write("RUN pip3 install -r requirements.txt\n")
+
+        # I'm not sure why it isn't upgrading. uninstall -> reinstall is the temporary fix
+        f.write("RUN pip3 uninstall hummingbird\n")
         f.write("RUN pip3 install git+https://github.com/richardycao/hummingbird_python.git#egg=hummingbird\n")
         f.write("\n")
         f.write("COPY *.py .\n")
