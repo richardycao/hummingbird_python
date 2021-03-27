@@ -144,7 +144,7 @@ class Module(object):
 
   def send(self, message):
     if self.args['has_output']:
-      self.producer.produce(self.args['topics_out'][0], value=message, callback=self.delivery_callback)
+      self.producer.produce(self.args['topics_out'][0], value=dumps(message).encode('utf-8'), callback=self.delivery_callback)
       self.producer.poll(0)
 
   def closeIO(self):

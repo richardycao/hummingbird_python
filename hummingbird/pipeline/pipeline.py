@@ -67,7 +67,7 @@ class Pipeline(object):
     Create the docker-compose file for the pipeline
     """
 
-    with open('./docker-compose-test.yml', 'w') as f:
+    with open('./docker-compose-' + str(self.id) + '.yml', 'w') as f:
       f.write("version: '3.7'\n")
       f.write("\n")
       f.write("services:\n")
