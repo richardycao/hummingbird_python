@@ -2,11 +2,11 @@ import os
 from pathlib import Path
 
 class Pipeline(object):
-  def __init__(self, modules=[]):
+  def __init__(self, id, modules=[]):
     """
     modules: list of PipelineNode
     """
-
+    self.id = id
     self.modules = modules
     self.tab_size = 2
 
@@ -29,7 +29,7 @@ class Pipeline(object):
       in the path
       
     """
-
+    queue_count = 0
     for module in self.modules:
       path = Path(module.module_path)
       with open(str(path.parent) + "/Dockerfile", 'w') as f:
@@ -48,11 +48,17 @@ class Pipeline(object):
         f.write("COPY *.py .\n")
         f.write("CMD python3 " + path.name)
 
-        # Writing params to the python command
+        # Generating kafka I/O params and writing them to the python command
+        f.write(" --topics-in " + str(id) + "-" + queue_count)
+        f.write(" --topics-out " + str(id) + "-" + (queue_count + 1))
+
+        # Writing other params to the python command
         params = module.params
         for key, value in params.items():
           f.write(" --" + key + " " + value)
         f.write("\n")
+
+        queue_count += 1
 
     """
     Create the docker-compose file for the pipeline

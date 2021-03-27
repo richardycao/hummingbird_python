@@ -52,8 +52,8 @@ class Module(object):
       # These will be generated during pipeline.synthesize()
       'topics_in'         : '',
       'topics_out'        : '',
-      'servers_in'        : '',
-      'servers_out'       : '',
+      'servers_in'        : 'kafka0:29092',
+      'servers_out'       : 'kafka0:29092',
       'group_id'          : 'test'
     }
     self.custom_options = {}
