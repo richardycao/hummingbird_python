@@ -2,6 +2,7 @@ from confluent_kafka import Producer, Consumer, KafkaException
 import sys
 import getopt
 import json
+from json import loads, dumps
 
 """
 Base definition of a Module (for now):
@@ -126,6 +127,31 @@ class Module(object):
     if err:
       print('Delivery_callback failed delivery:', err)
       print(json.loads(msg))
+
+  def receive(self, timeout=1.0):
+    if self.args['has_input']:
+      msg = self.consumer.poll(timeout=timeout)
+
+      if msg is None:
+        pass
+      if msg.error():
+        raise KafkaException(msg.error())
+      else:
+        message = loads(msg.value().decode("utf-8"))
+        return message
+    
+    return None
+
+  def send(self, message):
+    if self.args['has_output']:
+      self.producer.produce(self.args['topics_out'][0], value=message, callback=self.delivery_callback)
+      self.producer.poll(0)
+
+  def closeIO(self):
+    if self.args['has_input']:
+      self.consumer.close()
+    if self.args['has_output']:
+      self.producer.flush()
 
   def run(self):
     pass
