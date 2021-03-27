@@ -49,8 +49,8 @@ class Pipeline(object):
         f.write("CMD python3 " + path.name)
 
         # Generating kafka I/O params and writing them to the python command
-        f.write(" --topics-in " + str(id) + "-" + queue_count)
-        f.write(" --topics-out " + str(id) + "-" + (queue_count + 1))
+        f.write(" --topics-in " + str(self.id) + "-" + str(queue_count))
+        f.write(" --topics-out " + str(self.id) + "-" + str(queue_count + 1))
 
         # Writing other params to the python command
         params = module.params
