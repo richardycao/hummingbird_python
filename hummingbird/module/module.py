@@ -108,7 +108,6 @@ class Module(object):
       print(str(err))
 
     if self.args['has_input']:
-      print('Creating consumer')
       conf_in = {
         'bootstrap.servers' : self.args['servers_in'],
         'group.id'          : self.args['group_id'],
@@ -119,7 +118,6 @@ class Module(object):
       self.consumer.subscribe(self.args['topics_in'])
 
     if self.args['has_output']:
-      print('Creating producer')
       conf_out = { 'bootstrap.servers': self.args['servers_out'] }
       self.producer = Producer(**conf_out)
   
@@ -128,7 +126,7 @@ class Module(object):
       print('Delivery_callback failed delivery:', err)
       print(json.loads(msg))
 
-  def receive(self, timeout=1.0):
+  def receive(self, timeout=1.0, decode=True):
     if self.args['has_input']:
       msg = self.consumer.poll(timeout=timeout)
 
@@ -137,14 +135,14 @@ class Module(object):
       if msg.error():
         raise KafkaException(msg.error())
       else:
-        message = loads(msg.value().decode("utf-8"))
+        message = loads(msg.value().decode("utf-8")) if decode else msg
         return message
     
     return None
 
-  def send(self, message):
+  def send(self, message, encode=True):
     if self.args['has_output']:
-      self.producer.produce(self.args['topics_out'][0], value=dumps(message).encode('utf-8'), callback=self.delivery_callback)
+      self.producer.produce(self.args['topics_out'][0], value=dumps(message).encode('utf-8') if encode else message, callback=self.delivery_callback)
       self.producer.poll(0)
 
   def closeIO(self):
