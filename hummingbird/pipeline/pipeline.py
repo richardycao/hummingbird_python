@@ -96,7 +96,7 @@ class Pipeline(object):
     os.system('docker-compose -f docker-compose-kafka.yml build')
 
     # Build the docker compose for the pipeline
-    os.system('docker-compose -f docker-compose-test.yml build')
+    os.system('docker-compose -f docker-compose-' + str(self.id) + '.yml build')
 
   def run(self):
     # Maybe this part should be done manually. Leave it blank for now.
