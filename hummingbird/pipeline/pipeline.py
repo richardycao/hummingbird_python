@@ -79,6 +79,8 @@ class Pipeline(object):
         f.write(self.__tabs(1) + label + ":\n")
         f.write(self.__tabs(2) + "build: " + str(path.parent) + "\n")
         f.write(self.__tabs(2) + "container_name: " + label + "\n")
+        f.write(self.__tabs(2) + "environment:\n")
+        f.write(self.__tabs(3) + "- \"PYTHONUNBUFFERED=1\"\n")
         if len(dependencies) > 0:
           f.write(self.__tabs(2) + "depends_on:\n")
 
