@@ -64,10 +64,18 @@ class Module(object):
   def setOutput(self, val: bool):
     self.args['has_output'] = val
 
-  def add_argument(self, option, parser=None):
-    self.custom_options[option] = parser
+  def add_argument(self, option, parser=None, default=None):
+    self.custom_options[option] = {
+      'parser': parser,
+      'default': default
+    }
 
   def build(self):
+    # Initialize defaults for custom options
+    for op in self.custom_options.keys():
+      self.args[op] = self.custom_options[op]['default']
+
+    # Set all arguments
     short_options = ""
     long_options = ["topics-in=", "topics-out=", "servers-in=", 
                     "servers-out=", "group-id=", "session-timeout-ms=", 
@@ -99,13 +107,14 @@ class Module(object):
           for cop in self.custom_options.keys():
             if currentArgument in ("--" + cop):
               if self.custom_options[cop]:
-                self.args[cop] = self.custom_options[cop](currentValue)
+                self.args[cop] = self.custom_options[cop]['parser'](currentValue)
               else:
                 pass # depends
                 
     except getopt.error as err:
       print(str(err))
 
+    # Set up consumer and producer
     if self.args['has_input']:
       conf_in = {
         'bootstrap.servers' : self.args['servers_in'],
