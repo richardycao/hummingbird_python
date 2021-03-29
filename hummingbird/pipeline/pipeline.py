@@ -46,7 +46,7 @@ class Pipeline(object):
 
         # I'm not sure why it isn't upgrading. uninstall -> reinstall is the temporary fix
         f.write("RUN pip3 uninstall hummingbird\n")
-        f.write("RUN pip3 install git+https://github.com/richardycao/hummingbird_python.git#egg=hummingbird\n")
+        f.write("RUN pip install --upgrade git+https://github.com/richardycao/hummingbird_python.git#egg=hummingbird\n")
         f.write("\n")
         f.write("COPY *.py .\n")
         f.write("CMD python3 " + path.name)
