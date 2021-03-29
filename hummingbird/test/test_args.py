@@ -7,7 +7,7 @@ def hi():
 if __name__ == "__main__":
   arguments = sys.argv[1:]
   options = "ab:"
-  long_options = ["empty", "non-empty=", "extra"]
+  long_options = ["empty", "non-empty=", "extra", "slash/asdf="]
 
   try:
     arguments, _ = getopt.getopt(arguments, options, long_options)
@@ -19,6 +19,8 @@ if __name__ == "__main__":
         print('non-empty', currentValue)
       elif currentArgument in ("--extra"):
         print('extra')
+      elif currentArgument in ("--slash/asdf"):
+        print('slash/', currentValue)
       else:
         print('hi')
               

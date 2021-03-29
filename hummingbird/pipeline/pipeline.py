@@ -14,6 +14,13 @@ class Pipeline(object):
     tab = ''.join([' ' for _ in range(self.tab_size)])
     return ''.join([tab for _ in range(count)])
 
+  def parse_params(self, io, params, path=''):
+    for key, value in params.items():
+      if isinstance(value, dict):
+        self.parse_params(io, value, path=key+'/')
+      else:
+        io.write(" --" + path + str(key) + " " + value)
+
   def build(self):
     """
     Create the docker files.
@@ -60,6 +67,7 @@ class Pipeline(object):
         for key, value in params.items():
           f.write(" --" + key + " " + value)
         f.write("\n")
+        #self.parse_params(f, params)
 
         queue_count += 1
 

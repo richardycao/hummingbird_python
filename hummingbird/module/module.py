@@ -64,7 +64,12 @@ class Module(object):
   def setOutput(self, val: bool):
     self.args['has_output'] = val
 
-  def add_argument(self, option, parser=None, default=None):
+  """
+  Rules:
+  - no spaces allowed in argument names
+  - no forward slashes "/" allowed in argument names
+  """
+  def add_argument(self, option, parser=lambda x: x, default=None):
     self.custom_options[option] = {
       'parser': parser,
       'default': default
@@ -106,10 +111,7 @@ class Module(object):
           # Check through all of the custom options
           for cop in self.custom_options.keys():
             if currentArgument in ("--" + cop):
-              if self.custom_options[cop]:
-                self.args[cop] = self.custom_options[cop]['parser'](currentValue)
-              else:
-                pass # depends
+              self.args[cop] = self.custom_options[cop]['parser'](currentValue)
                 
     except getopt.error as err:
       print(str(err))
