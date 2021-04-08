@@ -44,8 +44,8 @@ class Module(object):
     # Default base args
     self.args = {
       # These are defined in the module implementation
-      'has_input'         : False,
-      'has_output'        : False,
+      'input_enabled'     : False,
+      'output_enabled'    : False,
       # These can be set by the user
       'session_timeout_ms': 10000,
       'auto_offset_reset' : 'earliest',
@@ -59,10 +59,10 @@ class Module(object):
     self.custom_options = {}
   
   def setInput(self, val: bool):
-    self.args['has_input'] = val
+    self.args['input_enabled'] = val
 
   def setOutput(self, val: bool):
-    self.args['has_output'] = val
+    self.args['output_enabled'] = val
 
   """
   Rules:
@@ -72,7 +72,7 @@ class Module(object):
   def add_argument(self, option, parser=lambda x: x, default=None):
     self.custom_options[option] = {
       'parser': parser,
-      'default': default
+      'default': parser(default) if default != None else None
     }
 
   def build(self):
@@ -117,7 +117,7 @@ class Module(object):
       print(str(err))
 
     # Set up consumer and producer
-    if self.args['has_input']:
+    if self.args['input_enabled']:
       conf_in = {
         'bootstrap.servers' : self.args['servers_in'],
         'group.id'          : self.args['group_id'],
@@ -127,7 +127,7 @@ class Module(object):
       self.consumer = Consumer(conf_in)
       self.consumer.subscribe(self.args['topics_in'])
 
-    if self.args['has_output']:
+    if self.args['output_enabled']:
       conf_out = { 'bootstrap.servers': self.args['servers_out'] }
       self.producer = Producer(**conf_out)
   
@@ -137,7 +137,7 @@ class Module(object):
       print(json.loads(msg))
 
   def receive(self, timeout=1.0, decode=True):
-    if self.args['has_input']:
+    if self.args['input_enabled']:
       msg = self.consumer.poll(timeout=timeout)
 
       if msg is None:
@@ -151,14 +151,14 @@ class Module(object):
     return None
 
   def send(self, message, encode=True):
-    if self.args['has_output']:
+    if self.args['output_enabled']:
       self.producer.produce(self.args['topics_out'][0], value=json.dumps(message).encode('utf-8') if encode else message, callback=self.delivery_callback)
       self.producer.poll(0)
 
   def closeIO(self):
-    if self.args['has_input']:
+    if self.args['input_enabled']:
       self.consumer.close()
-    if self.args['has_output']:
+    if self.args['output_enabled']:
       self.producer.flush()
 
   def run(self):
