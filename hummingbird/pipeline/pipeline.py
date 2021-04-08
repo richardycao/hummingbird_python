@@ -48,14 +48,13 @@ class Pipeline(object):
         f.write("RUN pip3 install --upgrade pip\n")
         f.write("\n")
         f.write("WORKDIR /usr/src/app\n")
-        f.write("COPY requirements.txt .\n")
+        f.write("COPY . .\n")
         f.write("RUN pip3 install -r requirements.txt\n")
 
         # I'm not sure why it isn't upgrading. uninstall -> reinstall is the temporary fix
         f.write("RUN pip3 uninstall hummingbird\n")
-        f.write("RUN pip install --upgrade git+https://github.com/richardycao/hummingbird_python.git#egg=hummingbird\n")
+        f.write("RUN pip3 install --upgrade git+https://github.com/richardycao/hummingbird_python.git#egg=hummingbird\n")
         f.write("\n")
-        f.write("COPY . .\n")
         f.write("CMD python3 " + path.name)
 
         # Generating kafka I/O params and writing them to the python command
