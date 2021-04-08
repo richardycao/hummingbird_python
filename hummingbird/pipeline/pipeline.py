@@ -55,7 +55,7 @@ class Pipeline(object):
         f.write("RUN pip3 uninstall hummingbird\n")
         f.write("RUN pip install --upgrade git+https://github.com/richardycao/hummingbird_python.git#egg=hummingbird\n")
         f.write("\n")
-        f.write("COPY *.py .\n")
+        f.write("COPY . .\n")
         f.write("CMD python3 " + path.name)
 
         # Generating kafka I/O params and writing them to the python command
