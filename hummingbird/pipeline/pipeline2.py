@@ -33,11 +33,11 @@ class Pipeline2(object):
     self.nodes = nodes
     self.tab_size = 2
 
-  def _tabs(self, count):
+  def __tabs(self, count):
     tab = ''.join([' ' for _ in range(self.tab_size)])
     return ''.join([tab for _ in range(count)])
 
-  def _parse_settings(self, path):
+  def __parse_settings(self, path):
     # Default settings
     settings = {
       'use_custom_dockerfile': False
@@ -53,7 +53,7 @@ class Pipeline2(object):
         line = f.readline().strip()
     return settings
 
-  def _export_params(self, node, path):
+  def __export_params(self, node, path):
     params = node.params
     if "topics_in" not in params:
       params["topics_in"] = [i + "-" + node.id for i in node.inputs]
@@ -74,7 +74,7 @@ class Pipeline2(object):
     with open(path + "/params.json", 'w') as f: 
       json.dump(params, f)
 
-  def _generate_dockerfile(self, path):
+  def __generate_dockerfile(self, path):
     with open(str(path.parent) + "/Dockerfile", 'w') as f:
       f.write("FROM ubuntu:latest\n")
       f.write("\n")
@@ -93,7 +93,7 @@ class Pipeline2(object):
       f.write("\n")
       f.write("CMD python3 " + path.name)
 
-  def _generate_docker_compose(self, path):
+  def __generate_docker_compose(self, path):
     with open('./docker-compose-' + str(self.id) + '.yml', 'w') as f:
       f.write("version: '3.7'\n")
       f.write("\n")
@@ -102,27 +102,27 @@ class Pipeline2(object):
       for node in reversed(self.nodes):
         path = Path(node.path)
         container_name = node.id
-        f.write(self._tabs(1) + container_name + ":\n")
-        f.write(self._tabs(2) + "build: " + str(path.parent) + "\n")
-        f.write(self._tabs(2) + "container_name: " + container_name + "\n")
-        f.write(self._tabs(2) + "environment:\n")
-        f.write(self._tabs(3) + "- \"PYTHONUNBUFFERED=1\"\n")
+        f.write(self.__tabs(1) + container_name + ":\n")
+        f.write(self.__tabs(2) + "build: " + str(path.parent) + "\n")
+        f.write(self.__tabs(2) + "container_name: " + container_name + "\n")
+        f.write(self.__tabs(2) + "environment:\n")
+        f.write(self.__tabs(3) + "- \"PYTHONUNBUFFERED=1\"\n")
         if len(node.outputs) > 0:
-          f.write(self._tabs(2) + "depends_on:\n")
+          f.write(self.__tabs(2) + "depends_on:\n")
 
         for output_id in node.outputs:
-          f.write(self._tabs(3) + "- " + output_id + "\n")
+          f.write(self.__tabs(3) + "- " + output_id + "\n")
 
   def build(self):
     for node in self.nodes:
       path = Path(node.path)
-      settings = self._parse_settings(path) # Does this work if there isn't a settings file?
-      self._export_params(node, path)
+      settings = self.__parse_settings(path) # Does this work if there isn't a settings file?
+      self.__export_params(node, path)
 
       if not settings['use_custom_dockerfile']:
-        self._generate_dockerfile(path)
+        self.__generate_dockerfile(path)
 
-      self._generate_docker_compose(path)
+      self.__generate_docker_compose(path)
 
     os.system('docker-compose -f docker-compose-kafka.yml build')
     os.system('docker-compose -f docker-compose-' + str(self.id) + '.yml build')
