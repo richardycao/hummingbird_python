@@ -57,15 +57,15 @@ class Pipeline2(object):
   def __export_params(self, node, path):
     params = node.params
     if "topics_in" not in params:
-      params["topics_in"] = ",".join([i + "-" + node.id for i in node.inputs])
+      params["topics_in"] = [i + "-" + node.id for i in node.inputs]
     if "topics_out" not in params:
-      params["topics_out"] = ",".join([node.id + "-" + o for o in node.outputs])
+      params["topics_out"] = [node.id + "-" + o for o in node.outputs]
     if "servers_in" not in params:
       params["servers_in"] = "kafka0:29092"
     if "servers_out" not in params:
       params["servers_out"] = "kafka0:29092"
     if "session_timeout_ms" not in params:
-      params["session_timeout_ms"] = 1000
+      params["session_timeout_ms"] = 10000
     if "auto_offset_reset" not in params:
       params["auto_offset_reset"] = "earliest"
     if "group_id" not in params:

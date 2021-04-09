@@ -17,8 +17,7 @@ class Module2(object):
         'auto.offset.reset' : self.params['auto_offset_reset']
       }
       self.consumer = Consumer(conf_in)
-      for i in self.params['topics_in']:
-        self.consumer.subscribe(i)
+      self.consumer.subscribe(self.params['topics_in'])
 
     # Set up general producer for output
     if len(self.params['topics_out']) > 0:
