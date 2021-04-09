@@ -1,6 +1,6 @@
 
 class Node(object):
-  def __init__(self, id, path, params={}, inputs=[], outputs=[], custom=False):
+  def __init__(self, id, path, params={}, inputs=[], outputs=[]):
     self.id = id
     self.path = path
     self.params = params
