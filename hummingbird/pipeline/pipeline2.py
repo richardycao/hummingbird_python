@@ -43,6 +43,7 @@ class Pipeline2(object):
       'use_custom_dockerfile': False
     }
 
+    path = str(path.parent)
     with open(path + "/settings.txt", 'r') as f:
       line = f.readline().strip()
       while line:
@@ -51,6 +52,27 @@ class Pipeline2(object):
           settings['use_custom_dockerfile'] = bool(pair[1])
         line = f.readline().strip()
     return settings
+
+  def export_params(self, node, path):
+    params = node.params
+    if "topics_in" not in params:
+      params["topics_in"] = [i + "-" + node.id for i in node.inputs]
+    if "topics_out" not in params:
+      params["topics_out"] = [node.id + "-" + o for o in node.outputs]
+    if "servers_in" not in params:
+      params["servers_in"] = "kafka:29092"
+    if "servers_out" not in params:
+      params["servers_out"] = "kafka:29092"
+    if "session_timeout_ms" not in params:
+      params["session_timeout_ms"] = 1000
+    if "auto_offset_reset" not in params:
+      params["auto_offset_reset"] = "earliest"
+    if "group_id" not in params:
+      params["group_id"] = self.id
+
+    path = str(path.parent)
+    with open(path + "/params.json", 'w') as f: 
+      json.dump(params, f)
 
   def generate_dockerfile(self, path):
     with open(str(path.parent) + "/Dockerfile", 'w') as f:
@@ -94,7 +116,8 @@ class Pipeline2(object):
   def build(self):
     for node in self.nodes:
       path = Path(node.path)
-      settings = self.parse_settings(str(path.parent))
+      settings = self.parse_settings(path) # Does this work if there isn't a settings file?
+      self.export_params(node, path)
 
       if not settings['use_custom_dockerfile']:
         self.generate_dockerfile(path)
