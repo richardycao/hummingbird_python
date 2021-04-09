@@ -27,7 +27,9 @@ class Module2(object):
 
   def set_param(self, name, required=False, default=None, pattern=None): # Pattern-matching not supported yet
     if name not in self.params and required:
-      print("Missing required param " + name + ". Setting it to default value of " + default)
+      if default == None:
+        raise Exception("ERROR: Missing required parameter, " + name)
+      print("WARN: Missing required param, " + name + ". Setting it to default value of " + default)
       self.params[name] = default
   
   def delivery_callback(self, err, msg):
