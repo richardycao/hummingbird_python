@@ -44,13 +44,14 @@ class Pipeline2(object):
     }
 
     path = str(path.parent)
-    with open(path + "/settings.txt", 'r') as f:
-      line = f.readline().strip()
-      while line:
-        pair = line.split("=")
-        if pair[0].strip() == "use_custom_dockerfile":
-          settings['use_custom_dockerfile'] = bool(pair[1].strip())
+    if os.path.exists(path + "/settings.txt"):
+      with open(path + "/settings.txt", 'r') as f:
         line = f.readline().strip()
+        while line:
+          pair = line.split("=")
+          if pair[0].strip() == "use_custom_dockerfile":
+            settings['use_custom_dockerfile'] = bool(pair[1].lower().strip())
+          line = f.readline().strip()
     return settings
 
   def __export_params(self, node, path):
@@ -60,9 +61,9 @@ class Pipeline2(object):
     if "topics_out" not in params:
       params["topics_out"] = [node.id + "-" + o for o in node.outputs]
     if "servers_in" not in params:
-      params["servers_in"] = "kafka:29092"
+      params["servers_in"] = "kafka0:29092"
     if "servers_out" not in params:
-      params["servers_out"] = "kafka:29092"
+      params["servers_out"] = "kafka0:29092"
     if "session_timeout_ms" not in params:
       params["session_timeout_ms"] = 1000
     if "auto_offset_reset" not in params:
