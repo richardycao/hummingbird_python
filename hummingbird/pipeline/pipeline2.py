@@ -48,8 +48,8 @@ class Pipeline2(object):
       line = f.readline().strip()
       while line:
         pair = line.split("=")
-        if pair[0] == "use_custom_dockerfile":
-          settings['use_custom_dockerfile'] = bool(pair[1])
+        if pair[0].strip() == "use_custom_dockerfile":
+          settings['use_custom_dockerfile'] = bool(pair[1].strip())
         line = f.readline().strip()
     return settings
 
