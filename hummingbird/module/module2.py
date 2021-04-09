@@ -24,6 +24,11 @@ class Module2(object):
     if len(self.params['topics_out']) > 0:
       conf_out = { 'bootstrap.servers': self.params['servers_out'] }
       self.producer = Producer(**conf_out)
+
+  def set_param(self, name, required=False, default=None, pattern=None): # Pattern-matching not supported yet
+    if name not in self.params and required:
+      print("Missing required param " + name + ". Setting it to default value of " + default)
+      self.params[name] = default
   
   def delivery_callback(self, err, msg):
     if err:
